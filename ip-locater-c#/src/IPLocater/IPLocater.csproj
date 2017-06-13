@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net20;net35;net40;net46;netstandard1.4;netstandard1.6</TargetFrameworks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\IPLocater.cs" Link="IPLocater.cs" />
+  </ItemGroup>
+
+</Project>

@@ -4,17 +4,39 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace IPAddressLocater
+namespace CoderBusy
 {
     public class IPLocater
     {
         private readonly byte[] _data;
-        private readonly long _firstStartIpOffset; //索引区第一条流位置
-        private readonly long _lastStartIpOffset; //索引区最后一条流位置
-        private readonly long _prefixCount; //前缀数量
-        private readonly Dictionary<uint, PrefixIndex> _prefixDict;
-        private readonly long _prefixEndOffset; //前缀区最后一条的流位置
-        private readonly long _prefixStartOffset; //前缀区第一条的流位置
+        private long _firstStartIpOffset; //索引区第一条流位置
+        private long _lastStartIpOffset; //索引区最后一条流位置
+        private long _prefixCount; //前缀数量
+        private Dictionary<uint, PrefixIndex> _prefixDict;
+        private long _prefixEndOffset; //前缀区最后一条的流位置
+        private long _prefixStartOffset; //前缀区第一条的流位置
+
+        public IPLocater(Stream stream)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var buffer = new byte[1024];
+                while (true)
+                {
+                    var total = stream.Read(buffer, 0, buffer.Length);
+                    if (total > 0)
+                    {
+                        ms.Write(buffer, 0, total);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                _data = ms.ToArray();
+            }
+            Initialize();
+        }
 
         /// <summary>
         ///     初始化二进制dat数据
@@ -27,7 +49,16 @@ namespace IPAddressLocater
                 _data = new byte[fs.Length];
                 fs.Read(_data, 0, _data.Length);
             }
+            Initialize();
+        }
 
+        /// <summary>
+        ///     获取IP段数量
+        /// </summary>
+        public long IPCount { get; set; }
+
+        private void Initialize()
+        {
             _firstStartIpOffset = BytesToLong(_data[0], _data[1], _data[2], _data[3]);
             _lastStartIpOffset = BytesToLong(_data[4], _data[5], _data[6], _data[7]);
             _prefixStartOffset = BytesToLong(_data[8], _data[9], _data[10], _data[11]);
@@ -40,7 +71,7 @@ namespace IPAddressLocater
 
             //初始化前缀对应索引区区间
             var indexBuffer = new byte[_prefixCount * 9];
-            Array.Copy(_data, _prefixStartOffset, indexBuffer, 0, _prefixCount * 9);
+            Array.Copy(_data, Convert.ToInt32(_prefixStartOffset), indexBuffer, 0, Convert.ToInt32(_prefixCount) * 9);
             _prefixDict = new Dictionary<uint, PrefixIndex>();
             for (var k = 0; k < _prefixCount; k++)
             {
@@ -55,19 +86,14 @@ namespace IPAddressLocater
             }
         }
 
-        /// <summary>
-        ///     获取IP段数量
-        /// </summary>
-        public long IPCount { get; }
-
-        public static uint IpToInt(string ip, out uint prefix)
+        private uint IpToInt(string ip, out uint prefix)
         {
             var bytes = IPAddress.Parse(ip).GetAddressBytes();
             prefix = bytes[0];
             return bytes[3] + ((uint) bytes[2] << 8) + ((uint) bytes[1] << 16) + ((uint) bytes[0] << 24);
         }
 
-        public static string IntToIP(uint ipInt)
+        private string IntToIP(uint ipInt)
         {
             return new IPAddress(ipInt).ToString();
         }
@@ -179,7 +205,7 @@ namespace IPAddressLocater
         private string GetLocal(uint localOffset, uint localLength)
         {
             var buf = new byte[localLength];
-            Array.Copy(_data, localOffset, buf, 0, localLength);
+            Array.Copy(_data, Convert.ToInt32(localOffset), buf, 0, Convert.ToInt32(localLength));
             return Encoding.UTF8.GetString(buf, 0, (int) localLength);
         }
 
@@ -194,8 +220,8 @@ namespace IPAddressLocater
 
     /*
     （调用例子）：
-    IPLocater finder = new IPLocater("IPLocater.dat");
-    string result = finder.Query("202.102.227.68");
+    var finder = new IPLocater("IPLocater.dat");
+    var result = finder.Query("202.102.227.68");
    --> result="CN|中国|400000|华中|410000|河南省|410300|洛阳市|||100026|联通"
     */
     public class PrefixIndex
