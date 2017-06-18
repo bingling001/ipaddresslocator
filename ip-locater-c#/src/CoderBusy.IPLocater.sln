@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPLocater", "IPLocater\IPLocater.csproj", "{F3A5DAB1-7266-41AC-88FE-871237BC6F6C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPLocater", "CoderBusy.IPLocater\CoderBusy.IPLocater.csproj", "{F3A5DAB1-7266-41AC-88FE-871237BC6F6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPLocater.Test", "IPLocater.Test\IPLocater.Test.csproj", "{1E5086CB-AC40-4F27-9D94-984AEE972D3E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPLocater.Test", "CoderBusy.IPLocater.Test\CoderBusy.IPLocater.Test.csproj", "{1E5086CB-AC40-4F27-9D94-984AEE972D3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

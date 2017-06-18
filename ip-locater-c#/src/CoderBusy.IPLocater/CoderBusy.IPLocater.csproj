@@ -16,9 +16,11 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/coderbusy/ip-locater</RepositoryUrl>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>码农很忙</Authors>
     <Company>码农很忙</Company>
     <Description>IP地址定位器，可以在一定精度范围内得到IP地址的物理位置。</Description>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
 </Project>

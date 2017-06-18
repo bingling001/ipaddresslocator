@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1E5086CB-AC40-4F27-9D94-984AEE972D3E}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>IPLocater.Test</RootNamespace>
-    <AssemblyName>IPLocater.Test</AssemblyName>
+    <RootNamespace>CoderBusy.IPLocater.Test</RootNamespace>
+    <AssemblyName>CoderBusy.IPLocater.Test</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -49,7 +49,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IPLocater\IPLocater.csproj">
+    <ProjectReference Include="..\CoderBusy.IPLocater\CoderBusy.IPLocater.csproj">
       <Project>{f3a5dab1-7266-41ac-88fe-871237bc6f6c}</Project>
       <Name>IPLocater</Name>
     </ProjectReference>
