@@ -22,5 +22,6 @@
     <Description>IP地址定位器，可以在一定精度范围内得到IP地址的物理位置。</Description>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <FileVersion>1.2.0.0</FileVersion>
+    <RootNamespace>CoderBusy.IPLocater</RootNamespace>
   </PropertyGroup>
 </Project>

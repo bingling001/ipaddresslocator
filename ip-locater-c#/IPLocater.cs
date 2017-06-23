@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace CoderBusy
+namespace CoderBusy.IPLocater
 {
     /// <summary>
     ///     IP定位器
@@ -18,8 +18,9 @@ namespace CoderBusy
         private Dictionary<uint, PrefixIndex> _prefixDict;
         private long _prefixEndOffset; //前缀区最后一条的流位置
         private long _prefixStartOffset; //前缀区第一条的流位置
+
         /// <summary>
-        /// 
+        ///     使用 <see cref="System.IO.Stream" /> 初始化IP定位器
         /// </summary>
         /// <param name="stream"></param>
         public IPLocater(Stream stream)
@@ -31,13 +32,9 @@ namespace CoderBusy
                 {
                     var total = stream.Read(buffer, 0, buffer.Length);
                     if (total > 0)
-                    {
                         ms.Write(buffer, 0, total);
-                    }
                     else
-                    {
                         break;
-                    }
                 }
                 _data = ms.ToArray();
             }
@@ -61,8 +58,11 @@ namespace CoderBusy
         /// <summary>
         ///     获取IP段数量
         /// </summary>
-        public long IPCount { get; set; }
+        public long IPCount { get; private set; }
 
+        /// <summary>
+        ///     初始化
+        /// </summary>
         private void Initialize()
         {
             _firstStartIpOffset = BytesToLong(_data[0], _data[1], _data[2], _data[3]);
@@ -88,20 +88,21 @@ namespace CoderBusy
                 long endIndex = BytesToLong(indexBuffer[i + 5], indexBuffer[i + 6], indexBuffer[i + 7],
                     indexBuffer[i + 8]);
                 _prefixDict.Add(prefix,
-                    new PrefixIndex { Prefix = prefix, StartIndex = startIndex, EndIndex = endIndex });
+                    new PrefixIndex {Prefix = prefix, StartIndex = startIndex, EndIndex = endIndex});
             }
         }
 
+        /// <summary>
+        ///     IP地址转整形，并获取前缀。
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
         private uint IpToInt(string ip, out uint prefix)
         {
             var bytes = IPAddress.Parse(ip).GetAddressBytes();
             prefix = bytes[0];
-            return bytes[3] + ((uint)bytes[2] << 8) + ((uint)bytes[1] << 16) + ((uint)bytes[0] << 24);
-        }
-
-        private string IntToIP(uint ipInt)
-        {
-            return new IPAddress(ipInt).ToString();
+            return bytes[3] + ((uint) bytes[2] << 8) + ((uint) bytes[1] << 16) + ((uint) bytes[0] << 24);
         }
 
         /// <summary>
@@ -121,8 +122,8 @@ namespace CoderBusy
 
             if (_prefixDict.ContainsKey(ipPrefixValue))
             {
-                low = (uint)_prefixDict[ipPrefixValue].StartIndex;
-                high = (uint)_prefixDict[ipPrefixValue].EndIndex;
+                low = (uint) _prefixDict[ipPrefixValue].StartIndex;
+                high = (uint) _prefixDict[ipPrefixValue].EndIndex;
             }
             else
             {
@@ -134,25 +135,23 @@ namespace CoderBusy
             GetIndex(myIndex, out startIp, out endIp, out localOffset, out localLength);
 
             if (startIp <= intIP && endIp >= intIP)
-            {
                 return GetLocal(localOffset, localLength);
-            }
             return string.Empty;
         }
+
         /// <summary>
-        /// 
+        ///     查询位置
         /// </summary>
         /// <param name="ip"></param>
         /// <returns></returns>
-        public LocationModel QueryLocation(String ip)
+        public LocationModel QueryLocation(string ip)
         {
             var str = Query(ip);
-            if (String.IsNullOrEmpty(str))
-            {
+            if (string.IsNullOrEmpty(str))
                 return null;
-            }
             return new LocationModel(str);
         }
+
         /// <summary>
         ///     二分逼近算法
         /// </summary>
@@ -168,9 +167,7 @@ namespace CoderBusy
                 {
                     m = mid;
                     if (mid == 0)
-                    {
                         break; //防止溢出
-                    }
                     high = mid - 1;
                 }
                 else
@@ -196,8 +193,8 @@ namespace CoderBusy
                 _data[3 + leftOffset]);
             endip = BytesToLong(_data[4 + leftOffset], _data[5 + leftOffset], _data[6 + leftOffset],
                 _data[7 + leftOffset]);
-            localOffset = _data[8 + leftOffset] + ((uint)_data[9 + leftOffset] << 8) +
-                          ((uint)_data[10 + leftOffset] << 16);
+            localOffset = _data[8 + leftOffset] + ((uint) _data[9 + leftOffset] << 8) +
+                          ((uint) _data[10 + leftOffset] << 16);
             localLength = _data[11 + leftOffset];
         }
 
@@ -223,7 +220,7 @@ namespace CoderBusy
         {
             var buf = new byte[localLength];
             Array.Copy(_data, Convert.ToInt32(localOffset), buf, 0, Convert.ToInt32(localLength));
-            return Encoding.UTF8.GetString(buf, 0, (int)localLength);
+            return Encoding.UTF8.GetString(buf, 0, (int) localLength);
         }
 
         /// <summary>
@@ -231,121 +228,159 @@ namespace CoderBusy
         /// </summary>
         private uint BytesToLong(byte a, byte b, byte c, byte d)
         {
-            return ((uint)a << 0) | ((uint)b << 8) | ((uint)c << 16) | ((uint)d << 24);
-        }
-    }
-
-    /*
-    （调用例子）：
-    var finder = new IPLocater("IPLocater.dat");
-    var result = finder.Query("202.102.227.68");
-   --> result="CN|中国|400000|华中|410000|河南省|410300|洛阳市|||100026|联通"
-    */
-    /// <summary>
-    ///     前缀索引
-    /// </summary>
-    internal class PrefixIndex
-    {
-        public uint Prefix { get; set; }
-        public long StartIndex { get; set; }
-        public long EndIndex { get; set; }
-    }
-
-    /// <summary>
-    ///     位置模型
-    /// </summary>
-    public class LocationModel
-    {
-        public LocationModel()
-        {
+            return ((uint) a << 0) | ((uint) b << 8) | ((uint) c << 16) | ((uint) d << 24);
         }
 
-        public LocationModel(string data)
+        /*
+        （调用例子）：
+        var finder = new IPLocater("IPLocater.dat");
+        var result = finder.Query("202.102.227.68");
+       --> result="CN|中国|400000|华中|410000|河南省|410300|洛阳市|||100026|联通"
+        */
+        /// <summary>
+        ///     前缀索引
+        /// </summary>
+        internal class PrefixIndex
         {
-            if (string.IsNullOrEmpty(data))
+            /// <summary>
+            ///     前缀
+            /// </summary>
+            public uint Prefix { get; set; }
+
+            /// <summary>
+            ///     开始位置索引
+            /// </summary>
+            public long StartIndex { get; set; }
+
+            /// <summary>
+            ///     结束位置索引
+            /// </summary>
+            public long EndIndex { get; set; }
+        }
+
+        /// <summary>
+        ///     位置模型
+        /// </summary>
+        public class LocationModel
+        {
+            /// <summary>
+            ///     初始化位置模型
+            /// </summary>
+            public LocationModel()
             {
-                throw new ArgumentNullException(nameof(data));
             }
-            var items = data.Split('|');
-            for (var i = 0; i < items.Length; i++)
+
+            /// <summary>
+            ///     使用数据字符串初始化位置模型
+            /// </summary>
+            /// <param name="data"></param>
+            public LocationModel(string data)
             {
-                var str = items[i];
-                switch (i)
+                if (string.IsNullOrEmpty(data))
+                    throw new ArgumentNullException(nameof(data));
+                var items = data.Split('|');
+                for (var i = 0; i < items.Length; i++)
                 {
-                    case 0:
-                        CountryId = str;
-                        break;
-                    case 1:
-                        Country = str;
-                        break;
-                    case 2:
-                        AreaId = str;
-                        break;
-                    case 3:
-                        Area = str;
-                        break;
-                    case 4:
-                        RegionId = str;
-                        break;
-                    case 5:
-                        Region = str;
-                        break;
-                    case 6:
-                        CityId = str;
-                        break;
-                    case 7:
-                        City = str;
-                        break;
-                    case 8:
-                        CountyId = str;
-                        break;
-                    case 9:
-                        County = str;
-                        break;
-                    case 10:
-                        IspId = str;
-                        break;
-                    case 11:
-                        Isp = str;
-                        break;
+                    var str = items[i];
+                    switch (i)
+                    {
+                        case 0:
+                            CountryId = str;
+                            break;
+                        case 1:
+                            Country = str;
+                            break;
+                        case 2:
+                            AreaId = str;
+                            break;
+                        case 3:
+                            Area = str;
+                            break;
+                        case 4:
+                            RegionId = str;
+                            break;
+                        case 5:
+                            Region = str;
+                            break;
+                        case 6:
+                            CityId = str;
+                            break;
+                        case 7:
+                            City = str;
+                            break;
+                        case 8:
+                            CountyId = str;
+                            break;
+                        case 9:
+                            County = str;
+                            break;
+                        case 10:
+                            IspId = str;
+                            break;
+                        case 11:
+                            Isp = str;
+                            break;
+                    }
                 }
             }
+
+            /// <summary>国家编号</summary>
+            public string CountryId { get; set; }
+
+            /// <summary>国家</summary>
+            public string Country { get; set; }
+
+            /// <summary>区域编号</summary>
+            public string AreaId { get; set; }
+
+            /// <summary>区域</summary>
+            public string Area { get; set; }
+
+            /// <summary>省份编号</summary>
+            public string RegionId { get; set; }
+
+            /// <summary>省份</summary>
+            public string Region { get; set; }
+
+            /// <summary>城市编号</summary>
+            public string CityId { get; set; }
+
+            /// <summary>城市</summary>
+            public string City { get; set; }
+
+            /// <summary>县编号</summary>
+            public string CountyId { get; set; }
+
+            /// <summary>县</summary>
+            public string County { get; set; }
+
+            /// <summary>运营商编号</summary>
+            public string IspId { get; set; }
+
+            /// <summary>运营商</summary>
+            public string Isp { get; set; }
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                var list = new List<string>
+                {
+                    CountryId,
+                    Country,
+                    AreaId,
+                    Area,
+                    RegionId,
+                    Region,
+                    CityId,
+                    City,
+                    CountyId,
+                    County,
+                    IspId,
+                    Isp
+                };
+                list.RemoveAll(string.IsNullOrEmpty);
+                return string.Join(" ", list.ToArray());
+            }
         }
-
-        /// <summary>国家编号</summary>
-        public string CountryId { get; set; }
-
-        /// <summary>国家</summary>
-        public string Country { get; set; }
-
-        /// <summary>区域编号</summary>
-        public string AreaId { get; set; }
-
-        /// <summary>区域</summary>
-        public string Area { get; set; }
-
-        /// <summary>省份编号</summary>
-        public string RegionId { get; set; }
-
-        /// <summary>省份</summary>
-        public string Region { get; set; }
-
-        /// <summary>城市编号</summary>
-        public string CityId { get; set; }
-
-        /// <summary>城市</summary>
-        public string City { get; set; }
-
-        /// <summary>县编号</summary>
-        public string CountyId { get; set; }
-
-        /// <summary>县</summary>
-        public string County { get; set; }
-
-        /// <summary>运营商编号</summary>
-        public string IspId { get; set; }
-
-        /// <summary>运营商</summary>
-        public string Isp { get; set; }
     }
 }
