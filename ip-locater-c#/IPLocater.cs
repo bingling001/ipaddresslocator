@@ -32,9 +32,13 @@ namespace CoderBusy.IPLocater
                 {
                     var total = stream.Read(buffer, 0, buffer.Length);
                     if (total > 0)
+                    {
                         ms.Write(buffer, 0, total);
+                    }
                     else
+                    {
                         break;
+                    }
                 }
                 _data = ms.ToArray();
             }
@@ -135,7 +139,9 @@ namespace CoderBusy.IPLocater
             GetIndex(myIndex, out startIp, out endIp, out localOffset, out localLength);
 
             if (startIp <= intIP && endIp >= intIP)
+            {
                 return GetLocal(localOffset, localLength);
+            }
             return string.Empty;
         }
 
@@ -148,7 +154,9 @@ namespace CoderBusy.IPLocater
         {
             var str = Query(ip);
             if (string.IsNullOrEmpty(str))
+            {
                 return null;
+            }
             return new LocationModel(str);
         }
 
@@ -167,7 +175,9 @@ namespace CoderBusy.IPLocater
                 {
                     m = mid;
                     if (mid == 0)
+                    {
                         break; //防止溢出
+                    }
                     high = mid - 1;
                 }
                 else
@@ -277,7 +287,9 @@ namespace CoderBusy.IPLocater
             public LocationModel(string data)
             {
                 if (string.IsNullOrEmpty(data))
+                {
                     throw new ArgumentNullException(nameof(data));
+                }
                 var items = data.Split('|');
                 for (var i = 0; i < items.Length; i++)
                 {
