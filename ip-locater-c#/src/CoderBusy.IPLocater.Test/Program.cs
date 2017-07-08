@@ -10,7 +10,7 @@ namespace CoderBusy.IPLocater.Test
             var path = Path.Combine(Directory.GetCurrentDirectory(), "../../../../../data/ip-locater.dat");
             var locater = new IPLocater(path);
             var ip = "10.10.10.10";
-            var result = locater.QueryLocation(ip);
+            var result = locater.Query(ip);
             Console.WriteLine(result);
             Console.ReadKey();
         }

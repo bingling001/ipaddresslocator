@@ -179,7 +179,7 @@ public class IPLocater {
 
 	public static void main(String[] args) {
 		IPLocater finder = IPLocater.getInstance();
-		String ip = "210.51.200.123";
+		String ip = "202.102.227.68";
 		String result = finder.Get(ip);
 		System.out.println(ip);
 		System.out.println(result);
